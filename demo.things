@@ -1,0 +1,5 @@
+astro:sun:home   [ geolocation="-33.8071033,151.0397010", interval=60 ]
+astro:moon:home  [ geolocation="-33.8071033,151.0397010", interval=60 ]
+ntp:ntp:demo [ hostname="nl.pool.ntp.org", refreshInterval=60, refreshNtp=30 ]
+yahooweather:weather:sydney [ location=1105779 ]
+// vim: syntax=Xtend syntax=openhab

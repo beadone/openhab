@@ -1,0 +1,279 @@
+import java.util.Random
+
+import org.openhab.core.library.types.*
+import java.util.Date
+import java.text.SimpleDateFormat
+
+var Timer timer = null
+val resList = newArrayList("640/480", "320/240", "480/360")
+val urlList = newArrayList("http://www.fillmurray.com", "http://www.fillmurray.com/g",
+                 "http://www.placecage.com", "http://www.placecage.com/c", "http://www.placecage.com/g")
+val Random random = new Random()
+
+
+rule "Sensor Heart Beat1"
+when
+  Item mqtthb1 received update
+then
+  postUpdate(mqtthb1Time, new DateTimeType())
+end
+
+rule "Sensor Heart Beat2"
+when
+  Item mqtthb2 received update
+then
+  postUpdate(mqtthb2Time, new DateTimeType())
+end
+
+
+//mqttsw1sUpdate
+rule "Kitchen Sensor 1"
+when
+  Item mqttsw1s received update
+then
+  postUpdate(mqttsw1sUpdate, new DateTimeType())
+end
+rule "Kitchen Sensor 2"
+when
+  Item mqttsw2s received update
+then
+  postUpdate(mqttsw2sUpdate, new DateTimeType())
+end
+
+rule "Sensor temp"
+when
+  Item HT_Garage_Temp received update
+then
+  postUpdate(mqtthb1Time, new DateTimeType())
+end
+
+
+/**
+ * This is a demo rule which simulates a real dimmer by reacting to increase/decrease commands
+ * and posting an updated state on the bus
+ */
+rule "Dimmed Light"
+	when
+		Item DimmedLight received command
+	then
+        if ((receivedCommand==INCREASE) || (receivedCommand==DECREASE)) {
+    		var Number percent = 0
+    		if(DimmedLight.state instanceof DecimalType) percent = DimmedLight.state as DecimalType
+    			
+    		if(receivedCommand==INCREASE) percent = percent + 5
+    		if(receivedCommand==DECREASE) percent = percent - 5
+    
+    		if(percent<0)   percent = 0
+    		if(percent>100) percent = 100
+    		postUpdate(DimmedLight, percent);
+    	}
+end
+
+rule "Timer Demo"
+when
+    Item Light_GF_Corridor_Ceiling received command
+then
+    if(receivedCommand==ON) {
+        if(timer==null) {
+            // first ON command, so create a timer to turn the light off again
+            timer = createTimer(now.plusSeconds(10)) [|
+                sendCommand(Light_GF_Corridor_Ceiling, OFF)
+            ]
+        } else {
+            // subsequent ON command, so reschedule the existing timer
+            timer.reschedule(now.plusSeconds(10))
+        }
+    } else if(receivedCommand==OFF) {
+        // remove any previously scheduled timer
+        if(timer!=null) {
+            timer.cancel
+            timer = null
+        }
+    }
+end
+
+/**
+ * The following rules help initializing the demo items with some helpful states.
+ */
+rule "Initialize light states"
+	when
+		System started
+	then
+		Lights?.members.forEach(light|
+			postUpdate(light, if(Math::random > 0.7) ON else OFF)
+		)
+end
+
+rule "Initialize heating states"
+	when
+		System started
+	then
+		Heating?.members.forEach(heating|
+			postUpdate(heating, if(Math::random > 0.8) ON else OFF)
+		)
+		postUpdate(Temperature_Setpoint, 22)
+end
+
+rule "Initialize contact states"
+	when
+		System started
+	then
+		Windows?.members.forEach(window|
+			postUpdate(window, if(Math::random > 0.5) OPEN else CLOSED)
+		)
+end
+
+rule "Initialize Location"
+	when
+		System started
+	then
+		DemoLocation.postUpdate(new PointType("-33.8071033,151.0397010"))
+end
+
+rule "Set random room temperatures"
+	when
+		System started or
+		Time cron "0 0/5 * * * ?"
+	then
+		Temperature?.members.forEach(temperature|
+			postUpdate(temperature, 20.0 + (25.0 - (Math::random * 50.0).intValue) / 10.0)
+		)
+end
+
+rule "ut"
+when
+	Item Weather_Temperature changed or
+	Time cron "0 0 0 * * ?" or
+	System started
+then
+	postUpdate(Weather_Temp_Max, Weather_Temperature.maximumSince(now.withTimeAtStartOfDay).state)
+	postUpdate(Weather_Temp_Min, Weather_Temperature.minimumSince(now.withTimeAtStartOfDay).state)
+end
+
+rule "utgarage"
+when
+	Item HT_Garage_Temp changed or
+	Time cron "0 0 0 * * ?" or
+	System started
+then
+	postUpdate(Garage_Temp_Max, HT_Garage_Temp.maximumSince(now.withTimeAtStartOfDay).state)
+	postUpdate(Garage_Temp_Min, HT_Garage_Temp.minimumSince(now.withTimeAtStartOfDay).state)
+end
+
+rule "uhgarage"
+when
+	Item HH_Garage_Humidity changed or
+	Time cron "0 0 0 * * ?" or
+	System started
+then
+	postUpdate(Garage_Hum_Max, HH_Garage_Humidity.maximumSince(now.withTimeAtStartOfDay).state)
+	postUpdate(Garage_Hum_Min, HH_Garage_Humidity.minimumSince(now.withTimeAtStartOfDay).state)
+end
+
+rule "uthouse"
+when
+	Item HT_House_Temp changed or
+	Time cron "0 0 0 * * ?" or
+	System started
+then
+	postUpdate(House_Temp_Max, HT_House_Temp.maximumSince(now.withTimeAtStartOfDay).state)
+	postUpdate(House_Temp_Min, HT_House_Temp.minimumSince(now.withTimeAtStartOfDay).state)
+end
+
+rule "uhhouse"
+when
+	Item HH_House_Humidity changed or
+	Time cron "0 0 0 * * ?" or
+	System started
+then
+	postUpdate(House_Hum_Max, HH_House_Humidity.maximumSince(now.withTimeAtStartOfDay).state)
+	postUpdate(House_Hum_Min, HH_House_Humidity.minimumSince(now.withTimeAtStartOfDay).state)
+end
+
+rule "uthouse2"
+when
+	Item HT_House2_Temp changed or
+	Time cron "0 0 0 * * ?" or
+	System started
+then
+	postUpdate(House2_Temp_Max, HT_House_Temp2.maximumSince(now.withTimeAtStartOfDay).state)
+	postUpdate(House2_Temp_Min, HT_House_Temp2.minimumSince(now.withTimeAtStartOfDay).state)
+end
+
+rule "uhhouse2"
+when
+	Item HH_House2_Humidity changed or
+	Time cron "0 0 0 * * ?" or
+	System started
+then
+	postUpdate(House2_Hum_Max, HH_House_Humidity2.maximumSince(now.withTimeAtStartOfDay).state)
+	postUpdate(House2_Hum_Min, HH_House_Humidity2.minimumSince(now.withTimeAtStartOfDay).state)
+end
+
+
+
+
+rule "utbackyard"
+when
+	Item HT_Backyard_Temp changed or
+	Time cron "0 0 0 * * ?" or
+	System started
+then
+	postUpdate(Backyard_Temp_Max, HT_Backyard_Temp.maximumSince(now.withTimeAtStartOfDay).state)
+	postUpdate(Backyard_Temp_Min, HT_Backyard_Temp.minimumSince(now.withTimeAtStartOfDay).state)
+end
+
+rule "uhbackyard"
+when
+	Item HH_Backyard_Humidity changed or
+	Time cron "0 0 0 * * ?" or
+	System started
+then
+	postUpdate(Backyard_Hum_Max, HH_Backyard_Humidity.maximumSince(now.withTimeAtStartOfDay).state)
+	postUpdate(Backyard_Hum_Min, HH_Backyard_Humidity.minimumSince(now.withTimeAtStartOfDay).state)
+end
+
+
+
+// Creates an item that stores the last update time of this item
+rule "Records last weather update time"
+when
+  Item Weather_Temperature received update
+then
+  postUpdate(Weather_LastUpdate, new DateTimeType())
+end
+
+rule "Records last garage update time"
+when
+  Item HT_Garage_Temp received update
+then
+  postUpdate(Garage_LastUpdate, new DateTimeType())
+end
+
+rule "Records last humidity update time"
+when
+  Item HT_Garage_Temp received update
+then
+  postUpdate(Humidity_LastUpdate, new DateTimeType())
+end
+
+
+rule "Set random wifi variations"
+    when
+        System started or
+        Time cron "/20 * * * * ?"
+    then
+        postUpdate(Wifi_Level, (Math::random * 4.0).intValue)
+end
+
+rule "Set random image URLs"
+    when
+        Time cron "/10 * * * * ?"
+    then
+        val url = urlList.get(random.nextInt(urlList.length))
+        val res = resList.get(random.nextInt(resList.length))
+
+        postUpdate(ImageURL, url + "/" + res)
+end
+
+// vim: syntax=Xtend syntax=openhab

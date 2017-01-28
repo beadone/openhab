@@ -1,0 +1,142 @@
+sitemap demo label="Main Menu"
+{
+	Frame {
+		Group item=gFF label="First Floor" icon="firstfloor"
+		Group item=gGF label="Ground Floor" icon="groundfloor"
+		Group item=gC label="Cellar" icon="cellar"
+		Group item=Garden icon="garden"
+	}
+	Frame label="Weather" {
+		Text item=Weather_Temperature valuecolor=[Weather_LastUpdate=="NULL"="lightgray",Weather_LastUpdate>90="lightgray",>25="orange",>15="green",>5="orange",<=5="blue"] {
+			Frame {
+				Text item=Weather_Temp_Max valuecolor=[>25="orange",>15="green",>5="orange",<=5="blue"]
+				Text item=Weather_Temp_Min valuecolor=[>25="orange",>15="green",>5="orange",<=5="blue"]
+				Text item=Weather_LastUpdate visibility=[Weather_LastUpdate>30] valuecolor=[Weather_LastUpdate>120="orange", Weather_LastUpdate>300="red"]
+			}
+			Frame {
+				Switch item=Weather_Chart_Period icon="chart" label="Chart Period" mappings=[0="Hour", 1="Day", 2="Week"]
+				Chart item=Weather_Chart period=h refresh=600 visibility=[Weather_Chart_Period==0, Weather_Chart_Period=="NULL"]
+				Chart item=Weather_Chart period=D refresh=3600 visibility=[Weather_Chart_Period==1]
+				Chart item=Weather_Chart period=W refresh=3600 visibility=[Weather_Chart_Period==2]
+			}
+		}
+        Text label="Astronomical Data" icon="sun" {
+            Text item=Sun_Elevation
+            Text item=Sun_Azimuth
+            Text item=Sunrise_Time
+            Text item=Sunset_Time
+            Text item=Moon_Elevation
+            Text item=Moon_Azimuth
+            Text item=Moon_Phase
+        }
+
+          
+	}
+	
+	
+	
+	
+	 Frame label="PIRs" 
+   {    
+    //Switch item=mqttsw1 label="MQTT Switch 1" 
+    Text item=mqttsw1s 
+    Text item=mqttsw1sUpdate  
+   // Switch item=mqttsw2 label="MQTT Switch 2" 
+    Text item=mqttsw2s
+    Text item=mqttsw2sUpdate 
+    Text item=mqtthb1
+    Text item=mqtthb2
+    Text item=mqtthb1Time
+    Text item=mqtthb2Time
+    }
+    
+    Frame label="Home Weather" 
+    {
+    Text item=HT_Garage_Temp valuecolor=[Garage_LastUpdate=="NULL"="lightgray",Garage_LastUpdate>90="lightgray",>25="orange",>15="green",>5="orange",<=5="blue"] {
+			Frame label="Todays Temperture Max and Min" { 
+				Text item=Garage_Temp_Max valuecolor=[>35="red",>25="green",>5="orange",<=5="blue"]
+				Text item=Garage_Temp_Min valuecolor=[>35="red",>25="green",>5="orange",<=5="blue"]
+				Text item=House_Temp_Max valuecolor=[>35="red",>25="green",>5="orange",<=5="blue"]
+				Text item=House_Temp_Min valuecolor=[>35="red",>25="green",>5="orange",<=5="blue"]				
+				Text item=Backyard_Temp_Max valuecolor=[>35="red",>25="green",>5="orange",<=5="blue"]
+				Text item=Backyard_Temp_Min valuecolor=[>35="red",>25="green",>5="orange",<=5="blue"]
+				Text item=Garage_LastUpdate visibility=[Garage_LastUpdate>30] valuecolor=[Garage_LastUpdate>120="orange", Garage_LastUpdate>300="red"]
+				}
+			Frame {
+				Switch item=Garage_Chart_Period icon="chart" label="Garage Chart Period" mappings=[0="Hour", 1="Day", 2="Week"]
+				Chart item=Home_temperature period=h refresh=600 visibility=[Garage_Chart_Period==0, Garage_Chart_Period=="NULL"]
+				Chart item=Home_temperature period=D refresh=3600 visibility=[Garage_Chart_Period==1]
+				Chart item=Home_temperature period=W refresh=3600 visibility=[Garage_Chart_Period==2]
+			}
+			Frame label="Todays Humidity Max and Min" { 
+				Text item=Garage_Hum_Max valuecolor=[>70="red",>50="green",>25="orange",<=25="blue"]
+				Text item=Garage_Hum_Min valuecolor=[>70="red",>50="green",>25="orange",<=25="blue"]
+				Text item=House_Hum_Max valuecolor=[>70="red",>50="green",>25="orange",<=25="blue"]
+				Text item=House_Hum_Min valuecolor=[>70="red",>50="green",>25="orange",<=25="blue"]
+				Text item=Backyard_Hum_Max valuecolor=[>70="red",>50="green",>25="orange",<=25="blue"]
+				Text item=Backyard_Hum_Min valuecolor=[>70="red",>50="green",>25="orange",<=25="blue"]
+				Text item=Humidity_LastUpdate visibility=[Humidity_LastUpdate>30] valuecolor=[Humidity_LastUpdate>120="orange", Humidity_LastUpdate>300="red"]
+			}	
+			Frame {
+				Switch item=Humidity_Chart_Period icon="chart" label="Humidity Chart Period" mappings=[0="Hour", 1="Day", 2="Week"]
+				Chart item=Home_humidity period=h refresh=600 visibility=[Humidity_Chart_Period==0, Humidity_Chart_Period=="NULL"]
+				Chart item=Home_humidity period=D refresh=3600 visibility=[Humidity_Chart_Period==1]
+				Chart item=Home_humidity period=W refresh=3600 visibility=[Humidity_Chart_Period==2]
+			}	
+	}	
+    Text item=HH_Garage_Humidity   
+    Text item=HT_Backyard_Temp 		
+	Text item=HH_Backyard_Humidity		
+	Text item=HT_House_Temp 			
+	Text item=HH_House_Humidity
+    Text item=HT_House_Temp2 			
+	Text item=HH_House_Humidity2
+    
+   }
+	
+    Frame label="Demo" {
+		Text item=CurrentDate
+		Text label="Group Demo" icon="firstfloor" {
+			Switch item=Lights mappings=[OFF="All Off"]
+			Group item=Heating
+			Group item=Windows
+			Text item=Temperature
+		}
+		Text label="Widget Overview" icon="chart" {
+			Frame label="Binary Widgets" {
+				Switch item=DemoSwitch label="Toggle Switch"
+				Switch item=DemoSwitch label="Button Switch" mappings=[ON="On"]
+			}
+			Frame label="Discrete Widgets" {
+				Selection item=Scene_General label="Scene Selection" mappings=[0=off, 1=TV, 2=Dinner, 3=Reading]
+				Switch item=Scene_General label="Scene" mappings=[1=TV, 2=Dinner, 3=Reading]
+				Setpoint item=Temperature_Setpoint minValue=16 maxValue=28 step=0.5
+			}
+			Frame label="Percent-based Widgets" {
+				Slider item=DimmedLight switchSupport
+				Colorpicker item=RGBLight icon="slider"
+				Switch item=DemoShutter
+				Slider item=DemoBlinds
+			}
+			Frame label="Map/Location" {
+				Mapview item=DemoLocation height=10
+			}
+		}
+		Text label="Multimedia" icon="video" {
+			Frame label="Radio Control" {
+				Selection item=Radio_Station mappings=[0=off, 1=HR3, 2=SWR3, 3=FFH]
+				Slider item=Volume
+			}
+			Frame label="Multimedia Widgets" {
+				Image url="https://raw.github.com/wiki/openhab/openhab/images/features.png" label="openHAB" {
+					Text label="http://www.openHAB.org" icon="icon"
+				}
+				Video url="http://demo.openhab.org/Hue.m4v"
+				Webview url="http://heise-online.mobi/" height=8
+                Image url="http://fpoimg.com/320x240?text=openHAB" item=ImageURL
+			}
+		}
+	}
+}
+
+// vim: syntax=Xtend syntax=openhab
